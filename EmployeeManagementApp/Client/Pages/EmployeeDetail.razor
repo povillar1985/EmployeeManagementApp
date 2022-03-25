@@ -1,0 +1,82 @@
+﻿@page "/employee/{employeeId:int}"
+
+@inject IEmployeeService EmployeeService
+@inject IDepartmentService DepartmentService
+@inject NavigationManager Navigation
+
+<div class="col-md-7">
+    <div class="profile-head">
+        <dl class="row" style="padding-left: 10px;">
+            <dt class="col-sm-3">
+                Department
+            </dt>
+            <dd class="col-sm-9">
+                @department.Name
+            </dd>
+            <dt class="col-sm-3">
+                First Name
+            </dt>
+            <dd class="col-sm-9">
+                @Employee.FirstName
+            </dd>
+            <dt class="col-sm-3">
+                Last Name
+            </dt>
+            <dd class="col-sm-9">
+                @Employee.LastName
+            </dd>
+            <dt class="col-sm-3">
+                Email
+            </dt>
+            <dd class="col-sm-9">
+                @Employee.Email
+            </dd>
+            <dt class="col-sm-3">
+                Phone
+            </dt>
+            <dd class="col-sm-9">
+                @Employee.Phone
+            </dd>
+            <dt class="col-sm-3">
+                Salary
+            </dt>
+            <dd class="col-sm-9">
+                @(String.Format("{0:C2}", Employee.Salary))
+            </dd>
+            <dt class="col-sm-3">
+                Bio
+            </dt>
+            <dd class="col-sm-9">
+                @Employee.Bio
+            </dd>
+            <dt class="col-sm-3">
+                Photo
+            </dt>
+            <dd class="col-sm-9">
+                <img src="@Employee.PhotoUrl" height="100" width="100" />
+            </dd>
+        </dl>
+    </div>
+</div>
+<div>
+    <a href="/employees" class="btn btn-light">Back to Details</a>
+</div>
+
+@code {
+    [Parameter]
+    public int EmployeeId { get; set; }
+
+    public Employee Employee { get; set; } = new();
+
+    private Department department = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (EmployeeId > 0 && Employee?.Id == 0)
+        {
+            Employee = await EmployeeService.GetAsync(EmployeeId);
+
+            department = await DepartmentService.GetAsync(Employee.DepartmentId);
+        }
+    }
+}

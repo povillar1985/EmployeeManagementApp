@@ -1,0 +1,83 @@
+﻿@page "/employees"
+
+@inject IEmployeeService EmployeeService
+@inject NavigationManager Navigation
+
+<h3>List of Employees</h3>
+<div>
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Department</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if(employees != null && employees.Any()) {
+                foreach(Employee employee in employees) {
+                    <tr>
+                        <td>@employee.Id</td>
+                        <td>@employee.FirstName</td>
+                        <td>@employee.LastName</td>
+                        <td>@employee.Email</td>
+                        <td>@employee.Phone</td>
+                        <td>@employee.Department.Name</td>
+                        <td>
+                            @*<a href="/department/edit/@department.Id">Edit</a>*@
+                            <button type="button" @onclick=@(()=>Navigation.NavigateTo($"/employee/edit/{@employee.Id}"))>Edit</button>
+                            <button type="button" @onclick=@(()=>Navigation.NavigateTo($"/employee/{@employee.Id}"))>Detail</button>
+                            <button type="button" @onclick=@(()=>Delete(employee.Id))>Delete</button>                            
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+<hr />
+<div>
+    <p>@_actionStatus</p>
+</div>
+@if (!CallAsComponent)
+{
+    <div>
+        <a href="/employee/add" class="btn btn-primary">Add New</a>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public IEnumerable<Employee> employees { get; set; }
+
+    [Parameter]
+    public bool CallAsComponent { get; set; }
+
+    private string _actionStatus = string.Empty;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if ((employees == null || !employees.Any()) && !CallAsComponent)
+        {
+            employees = await EmployeeService.GetAllAsync();
+        }
+    }
+
+    async Task Delete(int id)
+    {
+        if(await EmployeeService.DeleteAsync(id))
+        {
+            _actionStatus = "Deleted!";
+        }
+        else
+        {
+            _actionStatus = "Something went wrong!";
+        }
+
+        StateHasChanged();
+    }
+}

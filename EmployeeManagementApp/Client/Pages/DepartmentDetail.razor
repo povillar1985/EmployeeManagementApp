@@ -1,0 +1,46 @@
+﻿@page "/department/{departmentId:int}"
+
+@inject IEmployeeService EmployeeService
+@inject IDepartmentService DepartmentService
+@inject NavigationManager Navigation
+
+<div class="col-md-7">
+    <div class="profile-head">
+        <dl class="row" style="padding-left: 10px;">
+            <dt class="col-sm-3">
+                Name
+            </dt>
+            <dd class="col-sm-9">
+                @department.Name
+            </dd>
+            <dt class="col-sm-3">
+                Description
+            </dt>
+            <dd class="col-sm-9">
+                @department.Description
+            </dd>
+        </dl>
+    </div>
+</div>
+<div>
+    <Employees employees=@employees CallAsComponent="true" />
+</div>
+<div>
+    <a href="/departments" class="btn btn-light">Back to Details</a>
+</div>
+
+@code {
+    [Parameter]
+    public int DepartmentId { get; set; }
+
+    private Department department = new();
+    private IEnumerable<Employee> employees;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        department = await DepartmentService.GetAsync(DepartmentId);
+        employees = await EmployeeService.GetAllAsync(DepartmentId);
+
+        StateHasChanged();
+    }
+}
